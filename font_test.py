@@ -37,7 +37,7 @@ from font_to_py import Font, write_font
 # Utility functions
 
 def render_string(myfont, string):
-    height = myfont.height()
+    height = myfont.HEIGHT
     for row in range(height):
         for char in string:
             is_lhmap, data, _, width = myfont.get_char(char)

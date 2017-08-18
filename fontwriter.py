@@ -59,7 +59,7 @@ class FontWriter(object):
 
     def _newline(self):
         FontWriter.x_pos = 0
-        FontWriter.y_pos += self.font.height()
+        FontWriter.y_pos += self.font.HEIGHT
 
     def draw_text(self, string, color=None):
         color = color if color is not None else self.color
