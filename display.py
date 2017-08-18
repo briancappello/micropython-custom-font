@@ -17,11 +17,12 @@ class Display(ssd1306.SSD1306_I2C):
         self.default_font_writer = default_font_writer
 
     def set_position(self, x, y):
+        x = x if x is not None else FontWriter.x_pos
+        y = y if y is not None else FontWriter.y_pos
         FontWriter.set_position(x, y)
 
     def draw_text(self, text, *, x=None, y=None, font_writer=None, color=None):
-        if x is not None and y is not None:
-            FontWriter.set_position(x, y)
+        self.set_position(x, y)
         if font_writer:
             font_writer.draw_text(text, color)
         else:
