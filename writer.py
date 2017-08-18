@@ -1,9 +1,9 @@
 # writer.py Implements the Writer class.
-# V0.2 Peter Hinch Dec 2016
 
 # The MIT License (MIT)
 #
 # Copyright (c) 2016 Peter Hinch
+# Copyright (c) 2017 Brian Cappello
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -54,18 +54,6 @@ class Writer(object):
     def set_font(self, font):
         self.font = font
 
-        # set self.draw_char depending on the mapping of the font
-        if font.lmap():
-            self.draw_char = self._draw_lmap_char
-        elif font.hmap() and not font.reverse():
-            # only reverse horizontal bit mapping is supported by this Writer
-            raise NotImplementedError
-        elif not font.hmap() and font.reverse():
-            # reverse vertical bit mapping is not supported by this Writer
-            raise NotImplementedError
-        else:
-            self.draw_char = self._draw_char
-
     def set_color(self, color):
         self.color = color
 
@@ -78,65 +66,7 @@ class Writer(object):
         for char in string:
             self.draw_char(char, color)
 
-    def _draw_char(self, char, color):
-        """
-        Draw a bit mapped character
-        """
-        if char == '\n':
-            self._newline()
-            return
-
-        glyph, char_height, char_width = self.font.get_ch(char)
-
-        if Writer.x_pos + char_width > self.display.screen_width:
-            self._newline()
-
-        if self.font.hmap():
-            self._draw_hmap_char(glyph, char_height, char_width, color)
-        else:
-            self._draw_vmap_char(glyph, char_height, char_width, color)
-
-        Writer.x_pos += char_width
-
-    def _draw_hmap_char(self, glyph, char_height, char_width, color):
-        """
-        Draw a horizontally & reverse bit mapped character
-        """
-        div, mod = divmod(char_width, 8)
-        bytes_per_row = div + 1 if mod else div
-
-        for glyph_row_i in range(char_height):
-            glyph_row_start = glyph_row_i * bytes_per_row
-            glyph_row = from_bytes(glyph[glyph_row_start:glyph_row_start + bytes_per_row])
-            if not glyph_row:
-                continue
-            x = Writer.x_pos
-            y = Writer.y_pos + glyph_row_i
-            for glyph_col_i in range(char_width):
-                if glyph_row & (1 << glyph_col_i):
-                    self.display.pixel(x, y, color)
-                x += 1
-
-    def _draw_vmap_char(self, glyph, char_height, char_width, color):
-        """
-        Draw a vertically bit mapped character
-        """
-        div, mod = divmod(char_height, 8)
-        bytes_per_col = div + 1 if mod else div
-
-        for glyph_col_i in range(char_width):
-            glyph_col_start = glyph_col_i * bytes_per_col
-            glyph_col = from_bytes(glyph[glyph_col_start:glyph_col_start + bytes_per_col])
-            if not glyph_col:
-                continue
-            x = Writer.x_pos + glyph_col_i
-            y = Writer.y_pos
-            for glyph_row_i in range(char_height):
-                if glyph_col & (1 << glyph_row_i):
-                    self.display.pixel(x, y, color)
-                y += 1
-
-    def _draw_lmap_char(self, char, color):
+    def draw_char(self, char, color):
         """
         Draw a line mapped character
         """
