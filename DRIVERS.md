@@ -197,28 +197,6 @@ space.
 For line-mapped fonts, `get_ch()` returns a 4-tuple:  
 (is_horizontal_mapping, memoryview_of_char_line_data, height, width)
 
-## Binary font files
-
-These are unlikely to find application beyond the e-paper driver, but for
-completeness the format is as follows. They are binary files with a four byte
-header and 126 fixed length records. The header consists of two file identifiers
-enabling the file format to be checked, followed by bytes specifying the width
-and height. The length of each record is (width + 1) bytes.
-
-The file indentifiers depend on the -x and -r arguments specified to ``font_to_py.py``
-and are as follows:
-
-hmap reverse byte  
--x   -r      0    1  
-0    0       0x3f 0xe7  
-1    0       0x40 0xe7  
-0    1       0x41 0xe7  
-1    1       0x42 0xe7  
-
-Each record starts with a width byte specifying the x dimension of the glyph if
-rendered proportionally spaced, followed by the glyph data. This data includes
-trailing space ensuring that all records have the size specified in the header.
-
 ## Mapping
 
 A character occupies a space where (0, 0) represents the coordinates of the top

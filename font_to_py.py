@@ -490,13 +490,6 @@ class Font(dict):
             index += byte_pair(len(data))
         return data, index
 
-    def build_binary_array(self, hmap, reverse, sig):
-        data = bytearray((0x3f + sig, 0xe7, self.max_width, self.height))
-        for char in self.charset:
-            width = self[char][2]
-            data += bytes((width,))
-            data += bytearray(self.stream_char(char, hmap, reverse))
-        return data
 
 # PYTHON FILE WRITING
 
@@ -613,29 +606,6 @@ def write_data(stream, fnt, font_path, monospaced, hmap, lmap, reverse, charset)
     else:
         stream.write(GET_CHAR % {'height': height})
 
-# BINARY OUTPUT
-# hmap reverse magic bytes
-# 0    0       0x3f 0xe7
-# 1    0       0x40 0xe7
-# 0    1       0x41 0xe7
-# 1    1       0x42 0xe7
-def write_binary_font(op_path, font_path, height, hmap, reverse):
-    try:
-        fnt = Font(font_path, height, 32, 126, True, None)  # All chars have same width
-    except freetype.ft_errors.FT_Exception:
-        print("Can't open", font_path)
-        return False
-    sig = 1 if hmap else 0
-    if reverse:
-        sig += 2
-    try:
-        with open(op_path, 'wb') as stream:
-            data = fnt.build_binary_array(hmap, reverse, sig)
-            stream.write(data)
-    except OSError:
-        print("Can't open", op_path, 'for writing')
-        return False
-    return True
 
 # PARSE COMMAND LINE ARGUMENTS
 
@@ -656,10 +626,6 @@ To specify monospaced rendering issue:
 font_to_py.py FreeSans.ttf 23 --fixed freesans.py
 """
 
-BINARY = """Invalid arguments. Binary (random access) font files support the standard ASCII
-character set (from 32 to 126 inclusive). This range cannot be overridden.
-Random access font files don't support an error character.
-"""
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(__file__, description=DESC,
@@ -677,8 +643,6 @@ if __name__ == "__main__":
                         help='Bit reversal')
     parser.add_argument('-f', '--fixed', action='store_true',
                         help='Fixed width (monospaced) font')
-    parser.add_argument('-b', '--binary', action='store_true',
-                        help='Produce binary (random access) font file.')
 
     parser.add_argument('-s', '--smallest',
                         type = int,
@@ -700,38 +664,23 @@ if __name__ == "__main__":
     if args.lmap and args.reverse:
         quit('Cannot use bit reversal with line mapping')
 
-    if args.lmap and args.binary:
-        raise NotImplementedError
-
     if not os.path.isfile(args.infile):
         quit("Font filename does not exist")
 
     if not os.path.splitext(args.infile)[1].upper() in ('.TTF', '.OTF'):
         quit("Font file should be a ttf or otf file.")
 
-    if args.binary:
-        if os.path.splitext(args.outfile)[1].upper() == '.PY':
-            quit('Binary file must not have a .py extension.')
+    if not os.path.splitext(args.outfile)[1].upper() == '.PY':
+        quit('Output filename must have a .py extension.')
 
-        if args.smallest != 32 or args.largest != 126 or args.errchar != ord('?'):
-            quit(BINARY)
-
-        print('Writing binary font file.')
-        if not write_binary_font(args.outfile, args.infile, args.height,
-                                 args.xmap, args.reverse):
-            sys.exit(1)
+    if args.smallest and args.largest:
+        charset = [chr(x) for x in range(args.smallest, args.largest)]
     else:
-        if not os.path.splitext(args.outfile)[1].upper() == '.PY':
-            quit('Output filename must have a .py extension.')
+        charset = args.charset
 
-        if args.smallest and args.largest:
-            charset = [chr(x) for x in range(args.smallest, args.largest)]
-        else:
-            charset = args.charset
-
-        print('Writing Python font file.')
-        if not write_font(args.outfile, args.infile, args.height, args.fixed,
-                          args.xmap, args.lmap, args.reverse, charset):
-            sys.exit(1)
+    print('Writing Python font file.')
+    if not write_font(args.outfile, args.infile, args.height, args.fixed,
+                      args.xmap, args.lmap, args.reverse, charset):
+        sys.exit(1)
 
     print(args.outfile, 'written successfully.')

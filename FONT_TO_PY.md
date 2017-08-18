@@ -67,26 +67,6 @@ to render strings on demand. A practical example may be studied
 [here](https://github.com/peterhinch/micropython-samples/blob/master/SSD1306/ssd1306_test.py).
 The detailed layout of the Python file may be seen [here](./DRIVERS.md).
 
-### Binary font files
-
-There is an option to create a binary font file, specified with a ``-b`` or
-``--binary`` command line argument. In this instance the output filename must
-not have a ``.py`` extension. This is primarily intended for the e-paper driver
-in applications where the file is to be stored on the display's internal flash
-memory rather than using frozen Python modules.
-
-The technique of accessing character data from a random access file is slow
-and thus probably only applicable to devices such as e-paper where the update
-time is slow.
-
-Binary files currently support only the standard ASCII character set. There is
-no error character: the device driver must ensure that seeks are within range.
-Consequently the following arguments are invalid:
-
- * -s or --smallest
- * -l or --largest
- * -e or --errchar
-
 # Dependencies, links and licence
 
 The code is released under the MIT licence. It requires Python 3.2 or later.
