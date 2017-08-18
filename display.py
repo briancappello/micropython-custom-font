@@ -1,6 +1,6 @@
 import ssd1306
 
-from writer import Writer
+from fontwriter import FontWriter
 
 
 class Display(ssd1306.SSD1306_I2C):
@@ -8,24 +8,24 @@ class Display(ssd1306.SSD1306_I2C):
     screen_width = 0
 
     def __init__(self, width, height, i2c, addr=0x3c, external_vcc=False,
-                 default_font=None, rotation=None):
+                 default_font_writer=None, rotation=None):
         super().__init__(width, height, i2c, addr, external_vcc)
-        self.set_default_font(default_font)
+        self.set_default_font_writer(default_font_writer)
         self.set_rotation(rotation)
 
-    def set_default_font(self, default_font):
-        self.default_font = default_font
+    def set_default_font_writer(self, default_font_writer):
+        self.default_font_writer = default_font_writer
 
     def set_position(self, x, y):
-        Writer.set_position(x, y)
+        FontWriter.set_position(x, y)
 
-    def draw_text(self, text, *, x=None, y=None, font=None, color=None):
+    def draw_text(self, text, *, x=None, y=None, font_writer=None, color=None):
         if x is not None and y is not None:
-            Writer.set_position(x, y)
-        if font:
-            font.draw_text(text, color)
+            FontWriter.set_position(x, y)
+        if font_writer:
+            font_writer.draw_text(text, color)
         else:
-            self.default_font.draw_text(text, color)
+            self.default_font_writer.draw_text(text, color)
 
     def clear(self):
         self.fill(0)

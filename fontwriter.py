@@ -1,4 +1,4 @@
-# writer.py Implements the Writer class.
+# fontwriter.py Implements the FontWriter class.
 
 # The MIT License (MIT)
 #
@@ -23,8 +23,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-# A Writer supports rendering text to a Display instance in a given font.
-# Multiple Writer instances may be created, each rendering a font to the
+# A FontWriter supports rendering text to a Display instance in a given font.
+# Multiple FontWriter instances may be created, each rendering a font to the
 # same Display object.
 
 
@@ -32,8 +32,8 @@ def from_bytes(data, signed=False):
     return int.from_bytes(data, 'little', signed)
 
 
-class Writer(object):
-    # these attributes and set_position are common to all Writer instances
+class FontWriter(object):
+    # these attributes and set_position are common to all FontWriter instances
     x_pos = 0
     y_pos = 0
 
@@ -58,8 +58,8 @@ class Writer(object):
         self.color = color
 
     def _newline(self):
-        Writer.x_pos = 0
-        Writer.y_pos += self.font.height()
+        FontWriter.x_pos = 0
+        FontWriter.y_pos += self.font.height()
 
     def draw_text(self, string, color=None):
         color = color if color is not None else self.color
@@ -76,7 +76,7 @@ class Writer(object):
 
         is_lhmap, data, char_height, char_width = self.font.get_ch(char)
 
-        if Writer.x_pos + char_width > self.display.screen_width:
+        if FontWriter.x_pos + char_width > self.display.screen_width:
             self._newline()
 
         if is_lhmap:
@@ -84,7 +84,7 @@ class Writer(object):
         else:
             self._draw_lvmap_char(data, color)
 
-        Writer.x_pos += char_width
+        FontWriter.x_pos += char_width
 
     def _draw_lhmap_char(self, data, color):
         """
@@ -97,10 +97,10 @@ class Writer(object):
             num_lines = data[data_i]
             if num_lines:
                 prev_lines = []
-                y = Writer.y_pos + data[data_i + 1]
+                y = FontWriter.y_pos + data[data_i + 1]
                 for i in range(num_lines):
                     lstart = data_i + 2 + (i * 2)
-                    x = Writer.x_pos + data[lstart]
+                    x = FontWriter.x_pos + data[lstart]
                     length = data[lstart + 1]
                     prev_lines.append((x, length))
                     self.display.hline(x, y, length, color)
@@ -122,10 +122,10 @@ class Writer(object):
             num_lines = data[data_i]
             if num_lines:
                 prev_lines = []
-                x = Writer.x_pos + data[data_i + 1]
+                x = FontWriter.x_pos + data[data_i + 1]
                 for i in range(num_lines):
                     lstart = data_i + 2 + (i * 2)
-                    y = Writer.y_pos + data[lstart]
+                    y = FontWriter.y_pos + data[lstart]
                     length = data[lstart + 1]
                     prev_lines.append((y, length))
                     self.display.vline(x, y, length, color)

@@ -3,15 +3,15 @@ import machine
 import utime
 
 from display import Display
-from writer import Writer
+from fontwriter import FontWriter
 
 import DejaVuSans24_l
 
 
 i2c = machine.I2C(sda=machine.Pin(5), scl=machine.Pin(4))
 display = Display(128, 64, i2c)
-sans24 = Writer(display, DejaVuSans24_l)
-display.set_default_font(sans24)
+sans24 = FontWriter(display, DejaVuSans24_l)
+display.set_default_font_writer(sans24)
 
 rotation = 0
 while True:
