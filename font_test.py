@@ -40,7 +40,7 @@ def render_string(myfont, string):
     height = myfont.height()
     for row in range(height):
         for char in string:
-            is_lhmap, data, _, width = myfont.get_ch(char)
+            is_lhmap, data, _, width = myfont.get_char(char)
             if is_lhmap:
                 render_row_lhmap(data, row, height, width)
             else:

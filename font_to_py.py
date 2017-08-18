@@ -460,7 +460,7 @@ def _char_bounds(ch):
 GET_CHAR = """
 _mvfont = memoryview(_font)
 
-def get_ch(ch):
+def get_char(ch):
     start, end = _char_bounds(ch)
     is_lhmap = _mvfont[start]
     width = _mvfont[start+1]

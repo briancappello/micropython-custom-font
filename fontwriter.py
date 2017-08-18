@@ -74,7 +74,7 @@ class FontWriter(object):
             self._newline()
             return
 
-        is_lhmap, data, char_height, char_width = self.font.get_ch(char)
+        is_lhmap, data, char_height, char_width = self.font.get_char(char)
 
         if FontWriter.x_pos + char_width > self.display.screen_width:
             self._newline()
